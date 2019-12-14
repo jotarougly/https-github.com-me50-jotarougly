@@ -1,7 +1,7 @@
 import React from 'react';
 import {appStyles} from './AppStyles';
 import renderIf from './utils/controller';
-import { View, TextInput, Text, Button, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, TextInput, Text, Button, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 
