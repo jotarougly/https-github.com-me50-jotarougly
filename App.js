@@ -5,19 +5,42 @@ import { View, TextInput, Text, Button, StyleSheet, FlatList, TouchableOpacity, 
 import {createAppContainer} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 
+/**
+ * 
+ * @param {*} movieName 
+ * This function load the omdb api with the parameter s (with is the parameter for search movie)
+ * with the name given for the Text Input which is the parameter
+ * It return the result in json format
+ */
 const fetchMovies = async (movieName) => {
   const omdbApiCall = await fetch('http://www.omdbapi.com/?s='+movieName+'&apikey=1aab6ae8&r=json');
   const omdbApiResult = await omdbApiCall.json();
   return omdbApiResult;
   }
-  const fetchMovie = async (movieName) => {
-    const omdbApiCall = await fetch('http://www.omdbapi.com/?t='+movieName+'&apikey=1aab6ae8&r=json');
-    const omdbApiResult = await omdbApiCall.json();
-    return omdbApiResult;
-    }
+
+  /**
+ * 
+ * @param {*} movieName 
+ * This function load the omdb api with the parameter t (with is the parameter for specific movie)
+ * with the name given for the Text Input which is the parameter
+ * It return the result in json format
+ */
+const fetchMovie = async (movieName) => {
+  const omdbApiCall = await fetch('http://www.omdbapi.com/?t='+movieName+'&apikey=1aab6ae8&r=json');
+  const omdbApiResult = await omdbApiCall.json();
+  return omdbApiResult;
+  }
 
 class HomeScreen extends React.PureComponent {
 
+  /**
+   * 
+   * @param {*} props 
+   * 
+   * Variable movieName is for the given movie name
+   * Variable requestAnswer is to mention if data is provided.
+   * Variable movies is for the data found by the movieName variable after searching.
+   */
   constructor(props){
     super(props);
     this.state = {
@@ -31,6 +54,13 @@ class HomeScreen extends React.PureComponent {
     title: 'Home',
   };
 
+  /**
+ * 
+ * @param {*} text 
+ * This function calls the fetchMovies and provide data to movies state variable.
+ * It also use to controlle the information to display to the user if he gives no movie name
+ * or if the given name do not return any data.
+ */
 getMovies = async (text) => {
   if(this.state.movieName ==""){
     this.setState({
@@ -46,25 +76,27 @@ getMovies = async (text) => {
       });
     }else{
       this.setState({
+        movies: [],
         requestAnswer: result.Error,
     });
     }
   }
 }
-  renderItem = item => {
-    return (
-        <TouchableOpacity
-            style={{ alignItems: 'center', flexDirection: 'row', padding: 10,}}
-            onPress={() => {
-            this.props.navigation.navigate('Profile', {movie: item.item});
-          }}>
-            <Image style={{ height: 50, width: 50, justifyContent: 'center' }} source={{ uri: item.item.Poster }} />
-            <View style={{ flexDirection: "column", marginLeft: 12,}}>
-            <Text style={{ fontSize: 14, fontWeight: 'bold', justifyContent: 'center' }}>{item.item.Title}</Text>
-            <Text style={{ fontSize: 14, justifyContent: 'center' }}>{item.item.Type} ({item.item.Year})</Text>
-            </View>
-        </TouchableOpacity>
-    );
+
+renderItem = item => {
+  return (
+      <TouchableOpacity
+          style={{ alignItems: 'center', flexDirection: 'row', padding: 10,}}
+          onPress={() => {
+          this.props.navigation.navigate('Profile', {movie: item.item});
+        }}>
+          <Image style={{ height: 50, width: 50, justifyContent: 'center' }} source={{ uri: item.item.Poster }} />
+          <View style={{ flexDirection: "column", marginLeft: 12,}}>
+          <Text style={{ fontSize: 14, fontWeight: 'bold', justifyContent: 'center' }}>{item.item.Title}</Text>
+          <Text style={{ fontSize: 14, justifyContent: 'center' }}>{item.item.Type} ({item.item.Year})</Text>
+          </View>
+      </TouchableOpacity>
+  );
 }
 
 separateItem = () => {
@@ -74,81 +106,81 @@ separateItem = () => {
   );
 }
 
-  render() {
-    const {navigate} = this.props.navigation;
-    return (
-      <View style = {[appStyles.mainContainer]}>
-        <TextInput style = {[appStyles.textInput]}
-        placeholder = "Your movie name"
-        onChangeText={(text)=> this.setState({movieName:text})}
-        />
-        {renderIf(this.state.movieName == "No movie name",
-          <Text>
-          {this.state.movieName}
-         </Text>
-        )}
-        <Button
-        title="Go"
-         onPress={() => this.getMovies(this.state.movieName)}
+render() {
+  return (
+    <View style = {[appStyles.mainContainer]}>
+      <TextInput style = {[appStyles.textInput]}
+      placeholder = "Your movie name"
+      onChangeText={(text)=> this.setState({movieName:text})}
       />
-      {renderIf(this.state.requestAnswer !== '',
-          <Text>
-          {this.state.requestAnswer}
-         </Text>
-        )}
-        <View>
-          <FlatList
-              data={this.state.movies}
-              renderItem={this.renderItem}
-              keyExtractor={(item, index) => index}
-              initialNumToRender={10}
-              refreshing={true}
-              ItemSeparatorComponent={this.separateItem}
-          />
-        </View>
+      {renderIf(this.state.movieName == "No movie name",
+        <Text>
+        {this.state.movieName}
+        </Text>
+      )}
+      <Button
+      title="Go"
+        onPress={() => this.getMovies(this.state.movieName)}
+    />
+    {renderIf(this.state.requestAnswer !== '',
+        <Text>
+        {this.state.requestAnswer}
+        </Text>
+      )}
+      <View>
+        <FlatList
+            data={this.state.movies}
+            renderItem={this.renderItem}
+            keyExtractor={(item, index) => index}
+            initialNumToRender={10}
+            refreshing={true}
+            ItemSeparatorComponent={this.separateItem}
+        />
       </View>
-      
-    );
-  }
+    </View>
+    
+  );
+}
 }
 class ProfileScreen extends React.Component {
   static navigationOptions = {
     title: 'Detail',
   };
 
+  /**
+ * 
+ * @param {*} props 
+ * 
+ * Variable detail_poste set the default movie poster.
+ */
   constructor(props){
     super(props)
     this.state = {
-      // detail_title:"",
-      // detail_released:"",
-      // detail_year:"",
-      // detail_type:"",
-      // detail_actors:"",
-      // detail_director:"",
-      // detail_production:"",
-      // detail_awards:"",
-      // detail_runtime:"",
-      // detail_plot:"",
       detail_poster:"http://www.valmorgan.com.au/wp-content/uploads/2016/06/default-movie-1-3.jpg"
     }
   }
 
-getMovieSelected = async (text) => {
-    const result = await fetchMovie(text)
-    this.setState({
-    detail_title:result.Title,
-    detail_released:result.Released,
-    detail_year:result.Year,
-    detail_type:result.Type,
-    detail_actors:result.Actors,
-    detail_director:result.Director,
-    detail_production:result.Production,
-    detail_awards:result.Awards,
-    detail_runtime:result.Runtime,
-    detail_plot:result.Plot,
-    detail_poster:result.Poster
-    });
-}
+  /**
+ * 
+ * @param {*} text 
+ * This function calls the fetchMovie and provide data to set state variables.
+ */
+  getMovieSelected = async (text) => {
+      const result = await fetchMovie(text)
+      this.setState({
+      detail_title:result.Title,
+      detail_released:result.Released,
+      detail_year:result.Year,
+      detail_type:result.Type,
+      detail_actors:result.Actors,
+      detail_director:result.Director,
+      detail_production:result.Production,
+      detail_awards:result.Awards,
+      detail_runtime:result.Runtime,
+      detail_plot:result.Plot,
+      detail_poster:result.Poster
+      });
+  }
 
   render() {
     const param = this.props.navigation.getParam('movie');
